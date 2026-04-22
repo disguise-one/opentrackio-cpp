@@ -1,6 +1,11 @@
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout, CMakeDeps
+
+# OpenTrackIO-cpp build file.
+# This has been modified to support disguises
+# conan packaging system.
 
 class opentrackiocppRecipe(ConanFile):
     name = "opentrackio-cpp"
@@ -30,10 +35,12 @@ class opentrackiocppRecipe(ConanFile):
             self.options.rm_safe("fPIC")
             
     def validate(self):
-        check_min_cppstd(self, 20)
+        if self.settings.arch != "x86_64":
+            raise ConanInvalidConfiguration("Only x86_64 supported in this package!")
+        if self.settings.os != "Windows":
+            raise ConanInvalidConfiguration("Only Windows builds supported in this package!")
         
-    def requirements(self):
-        self.requires("nlohmann_json/3.11.3", transitive_headers=True)
+        check_min_cppstd(self, 20)
     
     def layout(self):
         cmake_layout(self)
@@ -42,6 +49,7 @@ class opentrackiocppRecipe(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
         tc = CMakeToolchain(self)
+        tc.generator = "Visual Studio 17 2022"
         tc.generate()
     
     def build(self):
