@@ -4,6 +4,6 @@
         "conan": {}
     },
     "include": [
-        "build\\build\\generators\\CMakePresets.json"
+        "C:\\dev\\opentrackio-cpp\\build\\generators\\CMakePresets.json"
     ]
 }
