@@ -27,14 +27,14 @@ namespace opentrackio::opentrackioproperties
 {
     /** Duration of the clip.
     * Unit: Seconds */
-    struct Duration
+    struct EXPORT Duration
     {
         opentrackiotypes::Rational rational{};
 
         static std::optional<Duration> parse(nlohmann::json& json, std::vector<std::string>& errors);
     };
 
-    struct Camera
+    struct EXPORT Camera
     {
         /**
         * Height and width of the active area of the camera sensor in millimeters.
@@ -100,7 +100,7 @@ namespace opentrackio::opentrackioproperties
     * (E, N, U, lat0, lon0, h0). Note this may be dynamic e.g. if the stage is inside
     * a moving vehicle.
     * Units: Meters */
-    struct GlobalStage
+    struct EXPORT GlobalStage
     {
         double e;
         double n;
@@ -112,7 +112,7 @@ namespace opentrackio::opentrackioproperties
         static std::optional<GlobalStage> parse(nlohmann::json& json, std::vector<std::string>& errors);
     };
 
-    struct Lens
+    struct EXPORT Lens
     {
         /**
         * This list provides optional custom additional coefficients for a
@@ -258,7 +258,7 @@ namespace opentrackio::opentrackioproperties
         static std::optional<Lens> parse(nlohmann::json& json, std::vector<std::string>& errors);
     };
     
-    struct Protocol
+    struct EXPORT Protocol
     {
         /**
         * Name of the protocol in which the sample is being employed, and version of that protocol. */
@@ -271,7 +271,7 @@ namespace opentrackio::opentrackioproperties
         static std::optional<Protocol> parse(nlohmann::json& json, std::vector<std::string>& errors);
     };
 
-    struct RelatedSampleIds
+    struct EXPORT RelatedSampleIds
     {
         /**
         * List of sampleId properties of samples related to this sample.
@@ -282,7 +282,7 @@ namespace opentrackio::opentrackioproperties
         static std::optional<RelatedSampleIds> parse(nlohmann::json& json, std::vector<std::string>& errors);
     };
 
-    struct SampleId
+    struct EXPORT SampleId
     {
         /**
         * URN serving as unique identifier of the sample in which data is being transported.
@@ -292,7 +292,7 @@ namespace opentrackio::opentrackioproperties
         static std::optional<SampleId> parse(nlohmann::json& json, std::vector<std::string>& errors);
     };
     
-    struct SourceId
+    struct EXPORT SourceId
     {
         /**
         * URN serving as unique identifier of the source from which data is being transported
@@ -302,7 +302,7 @@ namespace opentrackio::opentrackioproperties
         static std::optional<SourceId> parse(nlohmann::json& json, std::vector<std::string>& errors);
     };
 
-    struct SourceNumber
+    struct EXPORT SourceNumber
     {
         /**
 	    * Number that identifies the index of the stream from a source from which data is being transported.
@@ -312,7 +312,7 @@ namespace opentrackio::opentrackioproperties
         static std::optional<SourceNumber> parse(nlohmann::json& json, std::vector<std::string>& errors);
     };
 
-    struct Timing
+    struct EXPORT Timing
     {
         /**
         * Sample frame rate as a rational number. Drop frame rates such as 29.97 should be
@@ -479,7 +479,7 @@ namespace opentrackio::opentrackioproperties
         static std::optional<Synchronization::Ptp> parsePtp(nlohmann::json& json, std::vector<std::string>& errors);
     };
 
-    struct Tracker
+    struct EXPORT Tracker
     {
         /**
          * 	Non-blank string identifying tracking device firmware version. */
@@ -531,7 +531,7 @@ namespace opentrackio::opentrackioproperties
     * with an acceptable loss of precision.
     * Units: Meters/Degrees
      */
-    struct Transforms
+    struct EXPORT Transforms
     {
         std::vector<opentrackiotypes::Transform> transforms{};
 

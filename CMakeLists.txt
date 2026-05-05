@@ -19,7 +19,7 @@ option(BUILD_STATIC_LIBS "Build opentrackio static libraries" OFF)
 # Set optimization flags for Release builds
 if(MSVC)
     # Windows/MSVC optimizations
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2 /Ob2")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2 /Ob2 /GL")
     set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /LTCG /OPT:REF /OPT:ICF")
     set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /LTCG /OPT:REF /OPT:ICF")
     set(CMAKE_STATIC_LINKER_FLAGS_RELEASE "${CMAKE_STATIC_LINKER_FLAGS_RELEASE} /LTCG")
@@ -50,6 +50,7 @@ endif()
 
 target_sources(${PROJECT_NAME} PRIVATE ${source_list})
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
+add_compile_definitions(OPEN_TRACK_IO=1)
 
 # Handle debug vs release builds and their separate libs
 
