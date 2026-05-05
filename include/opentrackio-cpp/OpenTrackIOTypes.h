@@ -19,6 +19,12 @@
 #include <nlohmann/json.hpp>
 #include "opentrackio-cpp/OpenTrackIOHelper.h"
 
+#ifdef OPEN_TRACK_IO
+    #define EXPORT __declspec(dllexport)
+#else
+    #define EXPORT __declspec(dllimport)
+#endif
+
 namespace opentrackio::opentrackiotypes
 {
     struct Rational

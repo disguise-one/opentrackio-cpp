@@ -50,7 +50,6 @@ class opentrackiocppRecipe(ConanFile):
         deps.generate()
         tc = CMakeToolchain(self)
         tc.generator = "Visual Studio 17 2022"
-        tc.variables["BUILD_STATIC_LIBS"] = "ON"
         tc.generate()
     
     def build(self):
