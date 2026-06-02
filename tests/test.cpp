@@ -48,10 +48,10 @@ TEST_CASE("OpenTrackIOSample basic initialisation", "[init]")
         opentrackio::OpenTrackIOSample sample;
         json j;
 
-        REQUIRE_FALSE(sample.initialise(j));
+        REQUIRE_FALSE(sample.initialise(std::string_view("")));
         REQUIRE_FALSE(sample.getErrors().empty());
         REQUIRE(sample.getWarnings().empty());
-        REQUIRE(sample.getJson() == j);
+        REQUIRE(sample.getJson() == "null");
     }
 }
 
@@ -121,10 +121,9 @@ void testSampleParse(const std::string& response, opentrackio::OpenTrackIOSample
     REQUIRE(stringSample.protocol->name == OPEN_TRACK_IO_PROTOCOL_NAME);
     testVersion(stringSample.protocol->version);
 
-    json example = json::parse(response);
-    REQUIRE(sample.initialise(example));
+    REQUIRE(sample.initialise(std::string_view(response)));
     REQUIRE(sample.getJson() == stringSample.getJson());
-    REQUIRE(sample.getJson() == example);
+    REQUIRE(sample.getJson() == response);
 }
 
 void testRecommendedDynamic(const std::string& response)
@@ -447,7 +446,7 @@ TEST_CASE("OpenTrackIOSamples validate against the published schema", "[validate
         REQUIRE_NOTHROW(validator.validate(example));
 
         opentrackio::OpenTrackIOSample sample;
-        sample.initialise(example);
+        sample.initialise(std::string_view(response));
         json output = sample.getJson();
         REQUIRE_NOTHROW(validator.validate(output));
     }

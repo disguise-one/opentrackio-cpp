@@ -22,25 +22,12 @@ FetchContent_Declare(
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build libraries as static" FORCE)
 FetchContent_MakeAvailable(Catch2)
 
-# OpenSSL - for Curl
-FetchContent_Declare(
-    ssl_content
-    URL "https://github.com/janbar/openssl-cmake/archive/refs/tags/1.1.1w-20250419.tar.gz"
-    OVERRIDE_FIND_PACKAGE
-)
-FetchContent_MakeAvailable(ssl_content)
-
 # Curl - to get the latest examples from OpenTrackIO.org
-FetchContent_Declare(
-        curl
-        URL "https://github.com/curl/curl/archive/refs/tags/curl-8_7_1.tar.gz"
-        OVERRIDE_FIND_PACKAGE
+FetchContent_Declare(curl
+	URL https://curl.se/download/curl-8.7.1.tar.gz
+	DOWNLOAD_EXTRACT_TIMESTAMP true
+	OVERRIDE_FIND_PACKAGE
 )
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build libraries as static" FORCE)
-set(CURL_USE_OPENSSL ON CACHE INTERNAL "Use OpenSSL backend" FORCE)
-set(BUILD_CURL_EXE OFF CACHE BOOL "Don't build curl executable" FORCE)
-set(BUILD_TESTING OFF CACHE BOOL "Don't build curl tests" FORCE)
-option(CMAKE_USE_SCHANNEL "Set to ON to use WINSSL for windows." ON)
 FetchContent_MakeAvailable(curl)
 find_package(CURL REQUIRED)
 
@@ -73,12 +60,6 @@ target_include_directories(tests
 target_sources(tests
     PRIVATE
         test.cpp
-        ../include/opentrackio-cpp/OpenTrackIOHelper.h
-        ../include/opentrackio-cpp/OpenTrackIOProperties.h
-        ../include/opentrackio-cpp/OpenTrackIOSample.h
-        ../include/opentrackio-cpp/OpenTrackIOTypes.h
-        ../src/OpenTrackIOProperties.cpp
-        ../src/OpenTrackIOSample.cpp
 )
 
 # Linkage
@@ -86,8 +67,6 @@ target_link_libraries(tests
     PRIVATE
         opentrackio-cpp
         Catch2::Catch2WithMain
-        ssl
-        crypto
         CURL::libcurl
         nlohmann_json_schema_validator
 )
