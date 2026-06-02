@@ -22,7 +22,7 @@ class opentrackiocppRecipe(ConanFile):
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = {"shared": False, "fPIC": True}
 
-    exports_sources = "CMakeLists.txt", "src/*", "include/*", "external/*", "cmake/*"
+    exports_sources = "CMakeLists.txt", "src/*", "include/*", "internal/*", "external/*", "cmake/*"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -62,11 +62,10 @@ class opentrackiocppRecipe(ConanFile):
         self.info.header_only()
     
     def package(self):
-        cmake = CMake(self)
-        cmake.install()
-        self.copy("*", src="include", dst="include", keep_path=True)
-        self.copy("*", src="Debug", dst="lib\\Debug", keep_path=True)
-        self.copy("*", src="Release", dst="lib\\Release", keep_path=True)
+        for build_type in ["Debug", "Release"]:
+            cmake = CMake(self, build_type=build_type)
+            cmake.configure()
+            cmake.install()
     
     def package_info(self):
         self.cpp_info.libs = ['opentrackio-cpp']

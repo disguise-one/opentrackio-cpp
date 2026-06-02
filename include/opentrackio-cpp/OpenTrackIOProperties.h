@@ -15,7 +15,7 @@
 #include <vector>
 #include <string>
 #include <optional>
-#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 #include "OpenTrackIOTypes.h"
 
 #define OPEN_TRACK_IO_PROTOCOL_NAME "OpenTrackIO"

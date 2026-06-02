@@ -35,6 +35,7 @@ set (
         
         src/OpenTrackIOProperties.cpp
         src/OpenTrackIOSample.cpp
+        src/OpenTrackIOTypes.cpp
 )
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -78,16 +79,31 @@ target_include_directories(
         PUBLIC 
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-            
+)
+
+target_include_directories(
+        ${PROJECT_NAME}
+        PRIVATE 
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/internal>
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC nlohmann_json::nlohmann_json)
 
 install(TARGETS ${PROJECT_NAME}
-        EXPORT ${PROJECT_NAME}Targets
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        CONFIGURATIONS Debug
+        EXPORT ${PROJECT_NAME}TargetsDebug
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/Debug
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/Debug
+        RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}/Debug
+        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(TARGETS ${PROJECT_NAME}
+        CONFIGURATIONS Release
+        EXPORT ${PROJECT_NAME}TargetsRelease
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/Release
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/Release
+        RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}/Release
         INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
@@ -98,9 +114,14 @@ else()
     set(cmake_targets_install_dir cmake/${PROJECT_NAME})
 endif()
 
-install(EXPORT ${PROJECT_NAME}Targets
+install(EXPORT ${PROJECT_NAME}TargetsDebug
         NAMESPACE ${PROJECT_NAME}::
-        DESTINATION ${cmake_targets_install_dir}
+        DESTINATION ${cmake_targets_install_dir}/Debug
+)
+
+install(EXPORT ${PROJECT_NAME}TargetsRelease
+        NAMESPACE ${PROJECT_NAME}::
+        DESTINATION ${cmake_targets_install_dir}/Release
 )
 
 install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/include/${PROJECT_NAME}/
@@ -110,8 +131,8 @@ install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/include/${PROJECT_NAME}/
 get_target_property(IS_CONAN_PACKAGE nlohmann_json::nlohmann_json INTERFACE_COMPILE_OPTIONS)
 if (NOT IS_CONAN_PACKAGE)
     message("Build isn't Conan. Copying JSON deps.")
-    install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/external/nlohmann/
-            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/external/nlohmann/)
+    install(FILES ${CMAKE_CURRENT_LIST_DIR}/external/nlohmann/json_fwd.hpp
+            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/external/nlohmann)
 endif()
 
 include(CMakePackageConfigHelpers)
