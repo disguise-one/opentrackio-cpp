@@ -399,9 +399,9 @@ TEST_CASE("OpenTrackIOSample example initialisation", "[init]")
 
 TEST_CASE("OpenTrackIOSamples validate against the published schema", "[validate]")
 {
-    std::string response;
-    REQUIRE(getStringSchema(response));
-    json schema = json::parse(response);
+    std::string schemaJson;
+    REQUIRE(getStringSchema(schemaJson));
+    json schema = json::parse(schemaJson);
     json_validator validator;
     REQUIRE_NOTHROW(validator.set_root_schema(schema));
 
@@ -414,13 +414,14 @@ TEST_CASE("OpenTrackIOSamples validate against the published schema", "[validate
     {
         std::string data;
         REQUIRE(getStringExample(name, data));
-        json example = json::parse(data);
-        CHECK_NOTHROW(validator.validate(example));
+        json baseline = json::parse(data);
+        REQUIRE_NOTHROW(validator.validate(baseline));
 
         opentrackio::OpenTrackIOSample sample;
         sample.initialise(std::string_view(data));
-        json output = json::parse(sample.getJson());
         INFO(name << " - Output from library.");
-        CHECK_NOTHROW(validator.validate(output));
+        REQUIRE(sample.getErrors().size() == 0);
+        json j = json::parse(sample.getJson());
+        CHECK_NOTHROW(validator.validate(j));
     }
 }
