@@ -60,15 +60,20 @@ add_custom_command(TARGET tests POST_BUILD
                 $<TARGET_FILE_DIR:tests>/testdata
         COMMENT "Copying test resources to target.")
 
+
 # Linkage
 target_link_libraries(tests
     PRIVATE
-        opentrackio-cpp
+        ${PROJECT_NAME}
         Catch2::Catch2WithMain
         nlohmann_json_schema_validator
 )
 
-if (WIN32)
-    # For Windows, we need to link against ws2_32
-    target_link_libraries(tests PRIVATE ws2_32.lib)
+if(NOT BUILD_STATIC_LIBS)
+    message(STATUS "Adding post build shared library copy for tests.")
+    add_custom_command(TARGET tests POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_RUNTIME_DLLS:tests> $<TARGET_FILE_DIR:tests>
+        COMMAND_EXPAND_LISTS
+    )
 endif()
