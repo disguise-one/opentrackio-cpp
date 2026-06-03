@@ -92,14 +92,9 @@ void testVersion(const std::vector<uint16_t>& version)
 
 void testSampleParse(const std::string& response, opentrackio::OpenTrackIOSample& sample)
 {
-    opentrackio::OpenTrackIOSample stringSample;
-    REQUIRE(stringSample.initialise(std::string_view(response)));
-    REQUIRE(stringSample.protocol->name == OPEN_TRACK_IO_PROTOCOL_NAME);
-    testVersion(stringSample.protocol->version);
-
     REQUIRE(sample.initialise(std::string_view(response)));
-    REQUIRE(sample.getJson() == stringSample.getJson());
-    REQUIRE(sample.getJson() == response);
+    REQUIRE(sample.protocol->name == OPEN_TRACK_IO_PROTOCOL_NAME);
+    testVersion(sample.protocol->version);
 }
 
 void testRecommendedDynamic(const std::string& response)

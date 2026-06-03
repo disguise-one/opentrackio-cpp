@@ -9,8 +9,6 @@
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cmake_minimum_required(VERSION 3.25)
-project(opentrackio-cpp-tests VERSION 1.0.1 LANGUAGES CXX)
 Include(FetchContent)
 
 # Catch 2 test framework
@@ -24,11 +22,11 @@ FetchContent_MakeAvailable(Catch2)
 
 # Camdkit to provide test data/samples.
 FetchContent_Declare(
-  Camdkit
-  GIT_REPOSITORY https://github.com/SMPTE/ris-osvp-metadata-camdkit.git
-  GIT_TAG        v1.0.0
+  testdata
+  GIT_REPOSITORY git@github.com:disguise-one/opentrackio-testdata.git
+  GIT_TAG        v1.0.1
 )
-FetchContent_MakeAvailable(Camdkit)
+FetchContent_MakeAvailable(testdata)
 
 # Json
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/../cmake")
@@ -58,7 +56,7 @@ target_include_directories(tests
 # Copies the testdata contents to the exe in the tree.
 add_custom_command(TARGET tests POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-                ${camdkit_SOURCE_DIR}/src/test/resources/classic
+                ${testdata_SOURCE_DIR}
                 $<TARGET_FILE_DIR:tests>/testdata
         COMMENT "Copying test resources to target.")
 
