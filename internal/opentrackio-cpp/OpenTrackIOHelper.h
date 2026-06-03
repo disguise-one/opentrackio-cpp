@@ -87,6 +87,38 @@ namespace opentrackio
         {
             if (json.contains(fieldStr))
             {
+                if (json[fieldStr].type() != getJsonValueType(typeStr))
+                {
+                    errors.emplace_back(std::format("field: {0} isn't of type: {1}", fieldStr, typeStr));
+                    return;
+                }
+
+                getFieldFromJson(json[fieldStr], field);
+                json.erase(fieldStr);
+            }
+        }
+
+        template<typename T>
+        static void assignFieldArray(nlohmann::json& json, std::string_view fieldStr, std::optional<std::vector<T>>& field,
+            std::string_view typeStr, std::vector<std::string>& errors)
+        {
+            if (json.contains(fieldStr))
+            {
+                if (!json[fieldStr].is_array())
+                {
+                    errors.emplace_back(std::format("field: {0} isn't an array:", fieldStr));
+                    return;
+                }
+
+                for (const auto& jsonValue : json[fieldStr]) 
+                {
+                    if (jsonValue.type() != getJsonValueType(typeStr)) 
+                    {
+                        errors.emplace_back(std::format("field in array: {0} isn't af type: {1}", fieldStr, typeStr));
+                        break;
+                    }
+                }
+
                 getFieldFromJson(json[fieldStr], field);
                 json.erase(fieldStr);
             }
@@ -140,6 +172,26 @@ namespace opentrackio
                 json.erase(fieldStr);
             }
         }  
+
+        private:
+            static nlohmann::json::value_t getJsonValueType(const std::string_view& type) 
+            {
+                if (type == "string") {
+                    return nlohmann::json::value_t::string;
+                }
+                else if (type == "boolean") {
+                    return nlohmann::json::value_t::boolean;
+                }
+                else if (type == "double") {
+                    return nlohmann::json::value_t::number_float;
+                }
+                else if (type == "uint8" || type == "uint16" || type == "uint32" || type == "uint64") {
+                    return nlohmann::json::value_t::number_unsigned;
+                }
+
+
+                return nlohmann::json::value_t::discarded;
+            }
     };
 
     template<>

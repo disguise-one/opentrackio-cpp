@@ -205,8 +205,8 @@ namespace opentrackio::opentrackioproperties
                     std::optional<double> overscan = std::nullopt;
                     std::optional<std::string> model = std::nullopt;
 
-                    OpenTrackIOHelpers::assignField(dist, "radial", radial, "double", errors);
-                    OpenTrackIOHelpers::assignField(dist, "tangential", tangential, "double", errors);
+                    OpenTrackIOHelpers::assignFieldArray(dist, "radial", radial, "double", errors);
+                    OpenTrackIOHelpers::assignFieldArray(dist, "tangential", tangential, "double", errors);
                     OpenTrackIOHelpers::assignField(dist, "model", model, "string", errors);
                     OpenTrackIOHelpers::assignField(dist, "overscan", overscan, "double", errors);
 
