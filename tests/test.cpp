@@ -12,8 +12,7 @@
  */
 
 #include <catch2/catch_test_macros.hpp>
-#include <curl/curl.h>
-#include <iostream>
+#include <fstream>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json-schema.hpp>
 #include <opentrackio-cpp/OpenTrackIOSample.h>
@@ -24,9 +23,37 @@ using nlohmann::json_schema::json_validator;
 
 namespace
 {
-    const std::string SMPTE_METADATA_CAMDKIT_ROOT = "https://ris-pub.smpte.org/ris-osvp-metadata-camdkit/";
-    const std::string SMPTE_EXAMPLES_ROOT = SMPTE_METADATA_CAMDKIT_ROOT + "examples/";
+    // Store reletive paths to testdata.
+    const std::filesystem::path SMPTE_METADATA_CAMDKIT_ROOT = "testdata";
+    const std::filesystem::path SMPTE_EXAMPLES_ROOT = SMPTE_METADATA_CAMDKIT_ROOT / "examples";
 } // namespace
+
+inline bool readData(std::filesystem::path path, std::string& data) 
+{
+    std::ifstream fileHandle(path);
+    if (!fileHandle.is_open())
+        return false;
+
+    fileHandle.seekg(0, fileHandle.end);
+    auto length = fileHandle.tellg();
+    fileHandle.seekg(0, fileHandle.beg);
+    data.clear();
+    data.resize(length);
+    fileHandle.read(data.data(), length);
+    return true;
+}
+
+bool getStringExample(const std::string sampleName, std::string& data) 
+{
+    std::filesystem::path targetPath = SMPTE_EXAMPLES_ROOT / (sampleName + ".json");
+    return readData(targetPath, data);
+}
+
+bool getStringSchema(std::string& data) 
+{
+    std::filesystem::path targetPath = (SMPTE_METADATA_CAMDKIT_ROOT / "schema.json");
+    return readData(targetPath, data);
+}
 
 TEST_CASE("OpenTrackIOSample basic initialisation", "[init]")
 {
@@ -53,57 +80,6 @@ TEST_CASE("OpenTrackIOSample basic initialisation", "[init]")
         REQUIRE(sample.getWarnings().empty());
         REQUIRE(sample.getJson() == "null");
     }
-}
-
-//Convert curl out to string
-size_t curlToString(const char* ptr, size_t size, size_t nmemb, void* data)
-{
-    auto* str = static_cast<std::string*>(data);
-    for (size_t x = 0; x < size * nmemb; ++x)
-    {
-        *str += ptr[x];
-    }
-    return size * nmemb;
-}
-
-// Fetch string from the OpenTrackIO HTTPS endpoint
-bool getString(const std::string& url, std::string& response)
-{
-    if (CURL* curl = curl_easy_init())
-    {
-        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, true);
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curlToString);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-        curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
-        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, false);
-        curl_easy_setopt(curl, CURLOPT_CA_CACHE_TIMEOUT, 604800L);
-        response = "";
-        CURLcode res = curl_easy_perform(curl);
-        if (res != CURLE_OK)
-        {
-            return false;
-        }
-        curl_easy_cleanup(curl);
-        return true;
-    }
-    return false;
-}
-
-// Fetch schema from the OpenTrackIO HTTPS endpoint
-bool getStringSchema(std::string& response)
-{
-    std::string url = SMPTE_METADATA_CAMDKIT_ROOT + "schema.json";
-    return getString(url, response);
-}
-
-// Fetch example from the OpenTrackIO HTTPS endpoint
-bool getStringExample(const std::string& name, std::string& response)
-{
-    std::string url = SMPTE_EXAMPLES_ROOT + name + ".json";
-    std::cout << "Testing " << name << std::endl;
-    return getString(url, response);
 }
 
 void testVersion(const std::vector<uint16_t>& version)
@@ -441,13 +417,15 @@ TEST_CASE("OpenTrackIOSamples validate against the published schema", "[validate
         "complete_static_example",
         })
     {
-        REQUIRE(getStringExample(name, response));
-        json example = json::parse(response);
-        REQUIRE_NOTHROW(validator.validate(example));
+        std::string data;
+        REQUIRE(getStringExample(name, data));
+        json example = json::parse(data);
+        CHECK_NOTHROW(validator.validate(example));
 
         opentrackio::OpenTrackIOSample sample;
-        sample.initialise(std::string_view(response));
-        json output = sample.getJson();
-        REQUIRE_NOTHROW(validator.validate(output));
+        sample.initialise(std::string_view(data));
+        json output = json::parse(sample.getJson());
+        INFO(name << " - Output from library.");
+        CHECK_NOTHROW(validator.validate(output));
     }
 }

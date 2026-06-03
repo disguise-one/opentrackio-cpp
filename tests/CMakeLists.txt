@@ -22,14 +22,13 @@ FetchContent_Declare(
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build libraries as static" FORCE)
 FetchContent_MakeAvailable(Catch2)
 
-# Curl - to get the latest examples from OpenTrackIO.org
-FetchContent_Declare(curl
-	URL https://curl.se/download/curl-8.7.1.tar.gz
-	DOWNLOAD_EXTRACT_TIMESTAMP true
-	OVERRIDE_FIND_PACKAGE
+# Camdkit to provide test data/samples.
+FetchContent_Declare(
+  Camdkit
+  GIT_REPOSITORY https://github.com/SMPTE/ris-osvp-metadata-camdkit.git
+  GIT_TAG        v1.0.0
 )
-FetchContent_MakeAvailable(curl)
-find_package(CURL REQUIRED)
+FetchContent_MakeAvailable(Camdkit)
 
 # Json
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/../cmake")
@@ -56,18 +55,18 @@ target_include_directories(tests
         "${CMAKE_CURRENT_LIST_DIR}/../external"
 )
 
-# IDE
-target_sources(tests
-    PRIVATE
-        test.cpp
-)
+# Copies the testdata contents to the exe in the tree.
+add_custom_command(TARGET tests POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+                ${camdkit_SOURCE_DIR}/src/test/resources/classic
+                $<TARGET_FILE_DIR:tests>/testdata
+        COMMENT "Copying test resources to target.")
 
 # Linkage
 target_link_libraries(tests
     PRIVATE
         opentrackio-cpp
         Catch2::Catch2WithMain
-        CURL::libcurl
         nlohmann_json_schema_validator
 )
 
