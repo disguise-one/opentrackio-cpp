@@ -85,7 +85,7 @@ namespace opentrackio
 
         template<typename T>
         static void assignField(nlohmann::json &json, std::string_view fieldStr, std::optional<T> &field,
-                         std::string_view typeStr, std::vector<std::string> &errors)
+                         std::vector<std::string> &errors)
         {
             if (json.contains(fieldStr))
             {
@@ -99,7 +99,7 @@ namespace opentrackio
 
         template<typename T>
         static void assignFieldArray(nlohmann::json& json, std::string_view fieldStr, std::optional<std::vector<T>>& field,
-            std::string_view typeStr, std::vector<std::string>& errors)
+            std::vector<std::string>& errors)
         {
             if (json.contains(fieldStr))
             {
@@ -109,7 +109,7 @@ namespace opentrackio
                     return;
                 }
 
-                for (const auto& jsonValue : json[fieldStr]) 
+                for (const auto& jsonValue : json[fieldStr].array())
                 {
                     if (!checkJsonTypeMatch<T>(jsonValue, fieldStr, errors))
                         return;
@@ -122,7 +122,7 @@ namespace opentrackio
         
         template<Encoder T>
         static void assignField(nlohmann::json &json, std::string_view fieldStr, std::optional<T> &field,
-                         std::string_view typeStr, std::vector<std::string> &errors)
+                         std::vector<std::string> &errors)
         {
             if (!json.contains(fieldStr))
             {
@@ -132,9 +132,9 @@ namespace opentrackio
 
             field = T{};
             auto &encoderJson = json[fieldStr];
-            assignField(encoderJson, "focus", field->focus, typeStr, errors);
-            assignField(encoderJson, "iris", field->iris, typeStr, errors);
-            assignField(encoderJson, "zoom", field->zoom, typeStr, errors);
+            assignField(encoderJson, "focus", field->focus, errors);
+            assignField(encoderJson, "iris", field->iris, errors);
+            assignField(encoderJson, "zoom", field->zoom, errors);
 
             if (!(field->focus.has_value() && field->iris.has_value() && field->zoom.has_value()))
             {
@@ -199,7 +199,7 @@ namespace opentrackio
     template<>
     inline void OpenTrackIOHelpers::assignField<std::vector<std::string>>(nlohmann::json &json, std::string_view fieldStr,
                                                  std::optional<std::vector<std::string>> &field,
-                                                 std::string_view typeStr, std::vector<std::string> &errors)
+                                                 std::vector<std::string> &errors)
     {
         if (!json.contains(fieldStr) || !json[fieldStr].is_array())
         {

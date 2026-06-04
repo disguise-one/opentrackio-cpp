@@ -112,10 +112,10 @@ namespace opentrackio::opentrackiotypes
         std::optional<uint8_t> frames = std::nullopt;
         const std::optional<Rational> frameRate = Rational::parse(tcJson, "frameRate", errors);
 
-        OpenTrackIOHelpers::assignField(tcJson, "hours", hours, "uint8", errors);
-        OpenTrackIOHelpers::assignField(tcJson, "minutes", minutes, "uint8", errors);
-        OpenTrackIOHelpers::assignField(tcJson, "seconds", seconds, "uint8", errors);
-        OpenTrackIOHelpers::assignField(tcJson, "frames", frames, "uint8", errors);
+        OpenTrackIOHelpers::assignField(tcJson, "hours", hours,  errors);
+        OpenTrackIOHelpers::assignField(tcJson, "minutes", minutes,  errors);
+        OpenTrackIOHelpers::assignField(tcJson, "seconds", seconds,  errors);
+        OpenTrackIOHelpers::assignField(tcJson, "frames", frames,  errors);
 
         if (!hours.has_value() || !minutes.has_value() || !seconds.has_value() || !frames.has_value() || !frameRate.
             has_value())
@@ -125,10 +125,10 @@ namespace opentrackio::opentrackiotypes
         }
 
         std::optional<uint32_t> subFrame;
-        OpenTrackIOHelpers::assignField(tcJson, "subFrame", subFrame, "uint32_t", errors);
+        OpenTrackIOHelpers::assignField(tcJson, "subFrame", subFrame,  errors);
 
         std::optional<bool> dropFrame;
-        OpenTrackIOHelpers::assignField(tcJson, "dropFrame", dropFrame, "boolean", errors);
+        OpenTrackIOHelpers::assignField(tcJson, "dropFrame", dropFrame,  errors);
 
         return Timecode{
             hours.value(),
@@ -150,8 +150,8 @@ namespace opentrackio::opentrackiotypes
         std::optional<uint64_t> seconds = std::nullopt;
         std::optional<uint32_t> nanoseconds = std::nullopt;
 
-        OpenTrackIOHelpers::assignField(tsJson, "seconds", seconds, "uint64", errors);
-        OpenTrackIOHelpers::assignField(tsJson, "nanoseconds", nanoseconds, "uint32", errors);
+        OpenTrackIOHelpers::assignField(tsJson, "seconds", seconds, errors);
+        OpenTrackIOHelpers::assignField(tsJson, "nanoseconds", nanoseconds, errors);
 
         if (!seconds.has_value() || !nanoseconds.has_value())
         {
@@ -171,8 +171,8 @@ namespace opentrackio::opentrackiotypes
         std::optional<unsigned int> width = std::nullopt;
         std::optional<unsigned int> height = std::nullopt;
 
-        OpenTrackIOHelpers::assignField(dimJson, "width", width, "double", errors);
-        OpenTrackIOHelpers::assignField(dimJson, "height", height, "double", errors);
+        OpenTrackIOHelpers::assignField(dimJson, "width", width,  errors);
+        OpenTrackIOHelpers::assignField(dimJson, "height", height,  errors);
 
         if (!width.has_value() || !height.has_value())
         {
@@ -192,8 +192,8 @@ namespace opentrackio::opentrackiotypes
         std::optional<double> width = std::nullopt;
         std::optional<double> height = std::nullopt;
 
-        OpenTrackIOHelpers::assignField(dimJson, "width", width, "double", errors);
-        OpenTrackIOHelpers::assignField(dimJson, "height", height, "double", errors);
+        OpenTrackIOHelpers::assignField(dimJson, "width", width, errors);
+        OpenTrackIOHelpers::assignField(dimJson, "height", height, errors);
 
         if (!width.has_value() || !height.has_value())
         {
@@ -238,7 +238,7 @@ namespace opentrackio::opentrackiotypes
             json.erase("scale");
         }
 
-        OpenTrackIOHelpers::assignField(json, "id", tf.id, "string", errors);
+        OpenTrackIOHelpers::assignField(json, "id", tf.id, errors);
 
         return tf;
     }
