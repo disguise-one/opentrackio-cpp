@@ -42,7 +42,7 @@ namespace opentrackio
     template<typename T>
     concept JsonFloatDouble = std::is_floating_point_v<T>;
     template<typename T>
-    concept JsonNumber = std::is_arithmetic_v<T>;
+    concept JsonNumber = std::is_arithmetic_v<T> && std::is_integral_v<T>;
     
     class OpenTrackIOHelpers
     {
@@ -206,8 +206,6 @@ namespace opentrackio
                 else if constexpr (JsonBool<FieldT>) { return nlohmann::json::value_t::boolean; }
                 else if constexpr (JsonFloatDouble<FieldT>) { return nlohmann::json::value_t::number_float; }
                 else if constexpr (JsonNumber<FieldT>) { return nlohmann::json::value_t::number_unsigned; }
-
-                return nlohmann::json::value_t::discarded;
             }
 
             template<typename FieldT>
