@@ -38,26 +38,6 @@ namespace opentrackio
     class OpenTrackIOHelpers
     {
     public:
-        template<typename T>
-        static inline constexpr nlohmann::json::value_t getJsonValue() 
-        {
-            if constexpr (std::is_same_v<T, std::string>) {
-                return nlohmann::json::value_t::string;
-            }
-            if constexpr (std::is_same_v<T, bool>) {
-                return nlohmann::json::value_t::boolean;
-            }
-            if constexpr (std::is_floating_point_v<T>) {
-                return nlohmann::json::value_t::number_float;
-            }
-            if constexpr (std::is_arithmetic_v<T>) {
-                return nlohmann::json::value_t::number_unsigned;
-            }
-                
-            return nlohmann::json::value_t::discarded;
-            
-        }
-
         static void clearFieldIfEmpty(nlohmann::json &json, std::string_view fieldStr)
         {
             if (json[fieldStr].is_object() && std::distance(json[fieldStr].items().begin(), json[fieldStr].items().end()) == 0)
@@ -109,11 +89,8 @@ namespace opentrackio
         {
             if (json.contains(fieldStr))
             {
-                if (json[fieldStr].type() != getJsonValue<T>())
-                {
-                    errors.emplace_back(std::format("field: {0} isn't of type: {1}", fieldStr, typeStr));
+                if (!checkJsonTypeMatch<T>(json[fieldStr], fieldStr, errors))
                     return;
-                }
 
                 getFieldFromJson(json[fieldStr], field);
                 json.erase(fieldStr);
@@ -134,11 +111,8 @@ namespace opentrackio
 
                 for (const auto& jsonValue : json[fieldStr]) 
                 {
-                    if (jsonValue.type() != getJsonValue<T>()) 
-                    {
-                        errors.emplace_back(std::format("field in array: {0} isn't af type: {1}", fieldStr, typeStr));
-                        break;
-                    }
+                    if (!checkJsonTypeMatch<T>(jsonValue, fieldStr, errors))
+                        return;
                 }
 
                 getFieldFromJson(json[fieldStr], field);
@@ -196,24 +170,30 @@ namespace opentrackio
         }  
 
         private:
-            static nlohmann::json::value_t getJsonValueType(const std::string_view& type) 
+            template<typename FieldT>
+            static inline constexpr nlohmann::json::value_t getJsonTypeValue()
             {
-                if (type == "string") {
-                    return nlohmann::json::value_t::string;
-                }
-                else if (type == "boolean") {
-                    return nlohmann::json::value_t::boolean;
-                }
-                else if (type == "double") {
-                    return nlohmann::json::value_t::number_float;
-                }
-                else if (type == "uint8" || type == "uint16" || type == "uint32" || type == "uint64") {
-                    return nlohmann::json::value_t::number_unsigned;
-                }
-
+                if constexpr (std::is_same_v<FieldT, std::string>) { return nlohmann::json::value_t::string; }
+                if constexpr (std::is_same_v<FieldT, bool>) { return nlohmann::json::value_t::boolean; }
+                if constexpr (std::is_floating_point_v<FieldT>) { return nlohmann::json::value_t::number_float; }
+                if constexpr (std::is_arithmetic_v<FieldT>) { return nlohmann::json::value_t::number_unsigned; }
 
                 return nlohmann::json::value_t::discarded;
             }
+
+            template<typename FieldT>
+            static inline bool constexpr checkJsonTypeMatch(const nlohmann::json& json, const std::string_view& fieldStr, std::vector<std::string>& errors) 
+            {
+                nlohmann::json::value_t cppToJsonType = getJsonTypeValue<FieldT>();
+                if (json.type() != cppToJsonType)
+                {
+                    errors.emplace_back(std::format("field: {0} of type {1} isn't compatible with {2}.", fieldStr, json.type_name(), typeid(FieldT).name()));
+                    return false;
+                }
+
+                return true;
+            }
+
     };
 
     template<>
