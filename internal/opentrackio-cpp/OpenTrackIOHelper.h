@@ -14,6 +14,8 @@
 #pragma once
 #include <format>
 #include <regex>
+#include <string>
+#include <type_traits>
 #include <nlohmann/json.hpp>
 
 namespace opentrackio
@@ -36,6 +38,26 @@ namespace opentrackio
     class OpenTrackIOHelpers
     {
     public:
+        template<typename T>
+        static inline constexpr nlohmann::json::value_t getJsonValue() 
+        {
+            if constexpr (std::is_same_v<T, std::string>) {
+                return nlohmann::json::value_t::string;
+            }
+            if constexpr (std::is_same_v<T, bool>) {
+                return nlohmann::json::value_t::boolean;
+            }
+            if constexpr (std::is_floating_point_v<T>) {
+                return nlohmann::json::value_t::number_float;
+            }
+            if constexpr (std::is_arithmetic_v<T>) {
+                return nlohmann::json::value_t::number_unsigned;
+            }
+                
+            return nlohmann::json::value_t::discarded;
+            
+        }
+
         static void clearFieldIfEmpty(nlohmann::json &json, std::string_view fieldStr)
         {
             if (json[fieldStr].is_object() && std::distance(json[fieldStr].items().begin(), json[fieldStr].items().end()) == 0)
@@ -87,7 +109,7 @@ namespace opentrackio
         {
             if (json.contains(fieldStr))
             {
-                if (json[fieldStr].type() != getJsonValueType(typeStr))
+                if (json[fieldStr].type() != getJsonValue<T>())
                 {
                     errors.emplace_back(std::format("field: {0} isn't of type: {1}", fieldStr, typeStr));
                     return;
@@ -112,7 +134,7 @@ namespace opentrackio
 
                 for (const auto& jsonValue : json[fieldStr]) 
                 {
-                    if (jsonValue.type() != getJsonValueType(typeStr)) 
+                    if (jsonValue.type() != getJsonValue<T>()) 
                     {
                         errors.emplace_back(std::format("field in array: {0} isn't af type: {1}", fieldStr, typeStr));
                         break;

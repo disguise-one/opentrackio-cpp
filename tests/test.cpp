@@ -43,6 +43,17 @@ inline bool readData(std::filesystem::path path, std::string& data)
     return true;
 }
 
+void checkStructureForErrors(const std::vector<std::string>& errors)
+{
+    std::string errorMsg = "Errors reported!: \n";
+    for (const auto& errorStr : errors)
+    {
+        errorMsg += (errorStr + '\n');
+    }
+    INFO(errorMsg);
+    REQUIRE(errors.size() == 0);
+}
+
 bool getStringExample(const std::string sampleName, std::string& data) 
 {
     std::filesystem::path targetPath = SMPTE_EXAMPLES_ROOT / (sampleName + ".json");
@@ -92,20 +103,11 @@ void testVersion(const std::vector<uint16_t>& version)
 
 void testSampleParse(const std::string& response, opentrackio::OpenTrackIOSample& sample)
 {
-    REQUIRE(sample.initialise(std::string_view(response)));
+    bool initialised = sample.initialise(std::string_view(response));
+    checkStructureForErrors(sample.getErrors());
+    REQUIRE(initialised);
     REQUIRE(sample.protocol->name == OPEN_TRACK_IO_PROTOCOL_NAME);
     testVersion(sample.protocol->version);
-}
-
-void checkStructureForErrors(const std::vector<std::string>& errors)
-{
-    std::string errorMsg = "Errors reported!: \n";
-    for (const auto& errorStr : errors)
-    {
-        errorMsg += (errorStr + '\n');
-    }
-    WARN(errorMsg);
-    REQUIRE(errors.size() == 0);
 }
 
 void testRecommendedDynamic(const std::string& response)
