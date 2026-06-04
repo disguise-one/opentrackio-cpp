@@ -180,7 +180,7 @@ namespace opentrackio::opentrackioproperties
             OpenTrackIOHelpers::assignField(lensJson, "serialNumber", lens.serialNumber,  errors);
             OpenTrackIOHelpers::assignField(lensJson, "distortionOverscanMax", lens.distortionOverscanMax,  errors);
             OpenTrackIOHelpers::assignField(lensJson, "undistortionOverscanMax", lens.undistortionOverscanMax,  errors);
-            OpenTrackIOHelpers::assignField(lensJson, "calibrationHistory", lens.calibrationHistory,  errors);
+            OpenTrackIOHelpers::assignStringArray(lensJson, "calibrationHistory", lens.calibrationHistory,  errors);
 
             OpenTrackIOHelpers::clearFieldIfEmpty(json["static"], "lens");
         }

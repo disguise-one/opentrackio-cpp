@@ -34,6 +34,15 @@ namespace opentrackio
         { t.iris } -> std::convertible_to<std::optional<uint16_t>>;
         { t.zoom } -> std::convertible_to<std::optional<uint16_t>>;
     };
+
+    template<typename T>
+    concept JsonBool = std::is_same_v<T, bool>;
+    template<typename T>
+    concept JsonString = std::is_same_v<T, std::string>;
+    template<typename T>
+    concept JsonFloatDouble = std::is_floating_point_v<T>;
+    template<typename T>
+    concept JsonNumber = std::is_arithmetic_v<T>;
     
     class OpenTrackIOHelpers
     {
@@ -84,6 +93,7 @@ namespace opentrackio
         }
 
         template<typename T>
+            requires JsonBool<T> || JsonFloatDouble<T> || JsonNumber<T> || JsonString<T>
         static void assignField(nlohmann::json &json, std::string_view fieldStr, std::optional<T> &field,
                          std::vector<std::string> &errors)
         {
@@ -98,6 +108,7 @@ namespace opentrackio
         }
 
         template<typename T>
+            requires JsonBool<T> || JsonFloatDouble<T> || JsonNumber<T> || JsonString<T>
         static void assignFieldArray(nlohmann::json& json, std::string_view fieldStr, std::optional<std::vector<T>>& field,
             std::vector<std::string>& errors)
         {
@@ -169,20 +180,39 @@ namespace opentrackio
             }
         }  
 
+        static inline void assignStringArray(nlohmann::json& json, std::string_view fieldStr,
+            std::optional<std::vector<std::string>>& field,
+            std::vector<std::string>& errors)
+        {
+            if (!json.contains(fieldStr) || !json[fieldStr].is_array())
+            {
+                field = std::nullopt;
+                return;
+            }
+
+            std::vector<std::string> vec{};
+            iterateJsonArrayAndPopulateVector<std::string>(json[fieldStr], vec);
+
+            field = std::move(vec);
+            json.erase(fieldStr);
+        }
+
         private:
             template<typename FieldT>
-            static inline constexpr nlohmann::json::value_t getJsonTypeValue()
+            static inline constexpr nlohmann::json::value_t getJsonTypeValue() 
+                requires JsonBool<FieldT> || JsonFloatDouble<FieldT> || JsonNumber<FieldT> || JsonString<FieldT>
             {
-                if constexpr (std::is_same_v<FieldT, std::string>) { return nlohmann::json::value_t::string; }
-                if constexpr (std::is_same_v<FieldT, bool>) { return nlohmann::json::value_t::boolean; }
-                if constexpr (std::is_floating_point_v<FieldT>) { return nlohmann::json::value_t::number_float; }
-                if constexpr (std::is_arithmetic_v<FieldT>) { return nlohmann::json::value_t::number_unsigned; }
+                if constexpr (JsonString<FieldT>) { return nlohmann::json::value_t::string; }
+                else if constexpr (JsonBool<FieldT>) { return nlohmann::json::value_t::boolean; }
+                else if constexpr (JsonFloatDouble<FieldT>) { return nlohmann::json::value_t::number_float; }
+                else if constexpr (JsonNumber<FieldT>) { return nlohmann::json::value_t::number_unsigned; }
 
                 return nlohmann::json::value_t::discarded;
             }
 
             template<typename FieldT>
             static inline bool constexpr checkJsonTypeMatch(const nlohmann::json& json, const std::string_view& fieldStr, std::vector<std::string>& errors) 
+                requires JsonBool<FieldT> || JsonFloatDouble<FieldT> || JsonNumber<FieldT> || JsonString<FieldT>
             {
                 nlohmann::json::value_t cppToJsonType = getJsonTypeValue<FieldT>();
                 if (json.type() != cppToJsonType)
@@ -195,22 +225,4 @@ namespace opentrackio
             }
 
     };
-
-    template<>
-    inline void OpenTrackIOHelpers::assignField<std::vector<std::string>>(nlohmann::json &json, std::string_view fieldStr,
-                                                 std::optional<std::vector<std::string>> &field,
-                                                 std::vector<std::string> &errors)
-    {
-        if (!json.contains(fieldStr) || !json[fieldStr].is_array())
-        {
-            field = std::nullopt;
-            return;
-        }
-
-        std::vector<std::string> vec{};
-        iterateJsonArrayAndPopulateVector(json[fieldStr], vec);
-
-        field = std::move(vec);
-        json.erase(fieldStr);
-    }
 } // namespace opentrackio

@@ -72,7 +72,7 @@ target_link_libraries(tests
 if(NOT BUILD_STATIC_LIBS)
     message(STATUS "Adding post build shared library copy for tests.")
     add_custom_command(TARGET tests POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        COMMAND ${CMAKE_COMMAND} -E copy
                 $<TARGET_RUNTIME_DLLS:tests> $<TARGET_FILE_DIR:tests>
         COMMAND_EXPAND_LISTS
     )
