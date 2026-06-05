@@ -21,7 +21,6 @@ class opentrackiocppRecipe(ConanFile):
     settings = {"os", "compiler", "build_type", "arch"}
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = {"shared": False, "fPIC": True}
-
     exports_sources = "CMakeLists.txt", "src/*", "include/*", "internal/*", "external/*", "cmake/*"
 
     def config_options(self):
@@ -51,6 +50,7 @@ class opentrackiocppRecipe(ConanFile):
             # Override global build type value. Used by conan code to do stuff and configure cmake correctly.
             self.settings.build_type = build_type 
             cmake = CMake(self, generator="Visual Studio 17 2022", build_type=build_type)
+            cmake.definitions["OPENTRACKIO_BUILD_TESTS"] = "OFF"
             cmake.configure()
             cmake.build()
 

@@ -42,7 +42,7 @@ namespace opentrackio
     template<typename T>
     concept JsonFloatDouble = std::is_floating_point_v<T>;
     template<typename T>
-    concept JsonNumber = std::is_arithmetic_v<T> && std::is_integral_v<T>;
+    concept JsonNumber = std::is_arithmetic_v<T> && std::is_integral_v<T> && !JsonFloatDouble<T>;
     
     class OpenTrackIOHelpers
     {
