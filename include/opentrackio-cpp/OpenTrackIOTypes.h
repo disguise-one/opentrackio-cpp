@@ -31,6 +31,12 @@
 template<typename T>
 concept Numeric = std::is_integral_v<T> || std::is_floating_point_v<T>;
 
+#ifdef OPEN_TRACK_IO
+    #define EXPORT __declspec(dllexport)
+#else
+    #define EXPORT __declspec(dllimport)
+#endif
+
 namespace opentrackio::opentrackiotypes
 {
     struct Rational
