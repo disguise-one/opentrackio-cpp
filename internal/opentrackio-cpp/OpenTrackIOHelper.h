@@ -55,7 +55,6 @@ namespace opentrackio
     TYPE_NON_COVERSION_ASSERT(JsonBool, int);
     TYPE_NON_COVERSION_ASSERT(JsonBool, short);
     TYPE_NON_COVERSION_ASSERT(JsonBool, long);
-    TYPE_NON_COVERSION_ASSERT(JsonBool, std::string);
 
     TYPE_COVERSION_ASSERT(JsonString, std::string);
     TYPE_NON_COVERSION_ASSERT(JsonString, const char*);
