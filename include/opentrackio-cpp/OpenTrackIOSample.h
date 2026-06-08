@@ -39,7 +39,7 @@ namespace opentrackio
         bool initialise(std::span<const uint8_t> cbor);
         const std::vector<std::string>& getErrors() { return m_errorMessages; };
         const std::vector<std::string>& getWarnings() { return m_warningMessages; };
-        const std::string getJson();
+        const std::string getJsonString();
         
     private:
         std::string generateJson();

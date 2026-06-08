@@ -89,7 +89,7 @@ TEST_CASE("OpenTrackIOSample basic initialisation", "[init]")
         REQUIRE_FALSE(sample.initialise(std::string_view("")));
         CHECK_FALSE(sample.getErrors().empty());
         CHECK(sample.getWarnings().empty());
-        CHECK(sample.getJson() == "null");
+        CHECK(sample.getJsonString() == "null");
     }
 }
 
@@ -437,7 +437,7 @@ TEST_CASE("OpenTrackIOSamples validate against the published schema", "[validate
         sample.initialise(std::string_view(data));
         checkStructureForErrors(sample.getErrors());
         REQUIRE(sample.getErrors().size() == 0);
-        json j = json::parse(sample.getJson());
+        json j = json::parse(sample.getJsonString());
         CHECK_NOTHROW(validator.validate(j));
     }
 }

@@ -133,7 +133,7 @@ namespace opentrackio
         }
     }
 
-    const std::string OpenTrackIOSample::getJson()
+    const std::string OpenTrackIOSample::getJsonString()
     {
         return generateJson();
     }
