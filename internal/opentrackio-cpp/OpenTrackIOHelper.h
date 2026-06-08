@@ -62,11 +62,14 @@ namespace opentrackio
     TYPE_COVERSION_ASSERT(JsonNumber, int);
     TYPE_COVERSION_ASSERT(JsonNumber, long);
     TYPE_COVERSION_ASSERT(JsonNumber, short);
+    TYPE_NON_COVERSION_ASSERT(JsonNumber, float);
+    TYPE_NON_COVERSION_ASSERT(JsonNumber, double);
+
+    TYPE_COVERSION_ASSERT(JsonFloatDouble, float);
+    TYPE_COVERSION_ASSERT(JsonFloatDouble, double);
     TYPE_NON_COVERSION_ASSERT(JsonFloatDouble, int);
     TYPE_NON_COVERSION_ASSERT(JsonFloatDouble, long);
     TYPE_NON_COVERSION_ASSERT(JsonFloatDouble, short);
-    TYPE_COVERSION_ASSERT(JsonFloatDouble, float);
-    TYPE_COVERSION_ASSERT(JsonFloatDouble, double);
     
     class OpenTrackIOHelpers
     {
