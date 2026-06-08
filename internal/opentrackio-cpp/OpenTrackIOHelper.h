@@ -18,6 +18,12 @@
 #include <type_traits>
 #include <nlohmann/json.hpp>
 
+#define TYPE_COVERSION_ASSERT(JsonConcept, CppType) \
+    static_assert(JsonConcept<CppType>, "Type is not compatible!");
+
+#define TYPE_NON_COVERSION_ASSERT(JsonConcept, CppType) \
+    static_assert(!JsonConcept<CppType>, "Type is unexpectedly compatible!");
+
 namespace opentrackio
 {
     template<typename T>
@@ -43,6 +49,25 @@ namespace opentrackio
     concept JsonNumber = std::is_integral_v<T> && !JsonBool<T>;
     template<typename T>
     concept JsonFloatDouble = std::is_floating_point_v<T> && !JsonNumber<T>;
+
+    // Basic type conversion checks to ensure compatability with json library.
+    TYPE_COVERSION_ASSERT(JsonBool, bool);
+    TYPE_NON_COVERSION_ASSERT(JsonBool, int);
+    TYPE_NON_COVERSION_ASSERT(JsonBool, short);
+    TYPE_NON_COVERSION_ASSERT(JsonBool, long);
+    TYPE_NON_COVERSION_ASSERT(JsonBool, std::string);
+
+    TYPE_COVERSION_ASSERT(JsonString, std::string);
+    TYPE_NON_COVERSION_ASSERT(JsonString, const char*);
+
+    TYPE_COVERSION_ASSERT(JsonNumber, int);
+    TYPE_COVERSION_ASSERT(JsonNumber, long);
+    TYPE_COVERSION_ASSERT(JsonNumber, short);
+    TYPE_NON_COVERSION_ASSERT(JsonFloatDouble, int);
+    TYPE_NON_COVERSION_ASSERT(JsonFloatDouble, long);
+    TYPE_NON_COVERSION_ASSERT(JsonFloatDouble, short);
+    TYPE_COVERSION_ASSERT(JsonFloatDouble, float);
+    TYPE_COVERSION_ASSERT(JsonFloatDouble, double);
     
     class OpenTrackIOHelpers
     {
