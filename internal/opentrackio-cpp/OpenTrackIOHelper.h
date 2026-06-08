@@ -40,9 +40,9 @@ namespace opentrackio
     template<typename T>
     concept JsonString = std::is_same_v<T, std::string>;
     template<typename T>
-    concept JsonFloatDouble = std::is_floating_point_v<T>;
+    concept JsonNumber = std::is_integral_v<T> && !JsonBool<T>;
     template<typename T>
-    concept JsonNumber = std::is_arithmetic_v<T> && std::is_integral_v<T> && !JsonFloatDouble<T>;
+    concept JsonFloatDouble = std::is_floating_point_v<T> && !JsonNumber<T>;
     
     class OpenTrackIOHelpers
     {
@@ -93,7 +93,6 @@ namespace opentrackio
         }
 
         template<typename T>
-            requires JsonBool<T> || JsonFloatDouble<T> || JsonNumber<T> || JsonString<T>
         static void assignField(nlohmann::json &json, std::string_view fieldStr, std::optional<T> &field,
                          std::vector<std::string> &errors)
         {
@@ -108,7 +107,6 @@ namespace opentrackio
         }
 
         template<typename T>
-            requires JsonBool<T> || JsonFloatDouble<T> || JsonNumber<T> || JsonString<T>
         static void assignFieldArray(nlohmann::json& json, std::string_view fieldStr, std::optional<std::vector<T>>& field,
             std::vector<std::string>& errors)
         {
@@ -209,8 +207,7 @@ namespace opentrackio
             }
 
             template<typename FieldT>
-            static inline bool constexpr checkJsonTypeMatch(const nlohmann::json& json, const std::string_view& fieldStr, std::vector<std::string>& errors) 
-                requires JsonBool<FieldT> || JsonFloatDouble<FieldT> || JsonNumber<FieldT> || JsonString<FieldT>
+            static inline bool constexpr checkJsonTypeMatch(const nlohmann::json& json, const std::string_view& fieldStr, std::vector<std::string>& errors)
             {
                 nlohmann::json::value_t cppToJsonType = getJsonTypeValue<FieldT>();
                 if (json.type() != cppToJsonType)

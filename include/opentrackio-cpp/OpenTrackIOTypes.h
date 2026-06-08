@@ -28,9 +28,6 @@
     #define EXPORT
 #endif
 
-template<typename T>
-concept Numeric = std::is_integral_v<T> || std::is_floating_point_v<T>;
-
 namespace opentrackio::opentrackiotypes
 {
     struct Rational
@@ -138,7 +135,8 @@ namespace opentrackio::opentrackiotypes
                                               std::vector<std::string>& errors);
     };
 
-    template<Numeric T>
+    template<typename T>
+        requires std::is_arithmetic_v<T> && !std::is_same_v<T, bool>
     struct Dimensions
     {
         T width = 0;
