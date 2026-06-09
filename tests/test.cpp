@@ -72,6 +72,9 @@ TEST_CASE("OpenTrackIOSample basic initialisation", "[init]")
     {
         opentrackio::OpenTrackIOSample sample;
         CHECK_FALSE(sample.initialise(std::string_view("")));
+        CHECK_FALSE(sample.getErrors().empty());
+        CHECK(sample.getWarnings().empty());
+        CHECK(sample.getJsonString() == "null");
     }
 
     SECTION("Initialising from an empty CBOR object should be unsuccessful.")
@@ -79,14 +82,17 @@ TEST_CASE("OpenTrackIOSample basic initialisation", "[init]")
         opentrackio::OpenTrackIOSample sample;
         std::span<const uint8_t> cbor;
         CHECK_FALSE(sample.initialise(cbor));
+        CHECK_FALSE(sample.getErrors().empty());
+        CHECK(sample.getWarnings().empty());
+        CHECK(sample.getJsonString() == "null");
     }
 
-    SECTION("Initialising from an empty JSON object should be unsuccessful.")
+    SECTION("Initialising from the string of an empty JSON structure.") 
     {
+        json j = {};
+        std::string jsonStr = j.dump();
         opentrackio::OpenTrackIOSample sample;
-        json j;
-
-        REQUIRE_FALSE(sample.initialise(std::string_view("")));
+        CHECK_FALSE(sample.initialise(std::string_view(jsonStr)));
         CHECK_FALSE(sample.getErrors().empty());
         CHECK(sample.getWarnings().empty());
         CHECK(sample.getJsonString() == "null");
