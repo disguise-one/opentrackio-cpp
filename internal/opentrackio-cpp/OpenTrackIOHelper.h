@@ -145,7 +145,7 @@ namespace opentrackio
                     return;
                 }
 
-                for (const auto& jsonValue : json[fieldStr].array())
+                for (const auto& jsonValue : json[fieldStr])
                 {
                     if (!checkJsonTypeMatch<T>(jsonValue, fieldStr, errors))
                         return;
