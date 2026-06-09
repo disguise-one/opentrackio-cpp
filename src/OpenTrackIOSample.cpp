@@ -135,11 +135,6 @@ namespace opentrackio
 
     const std::string OpenTrackIOSample::getJsonString()
     {
-        return generateJson();
-    }
-
-    std::string OpenTrackIOSample::generateJson()
-    {
         namespace props = opentrackioproperties;
 
         nlohmann::json j;

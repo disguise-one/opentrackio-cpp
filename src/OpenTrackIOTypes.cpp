@@ -32,9 +32,7 @@ namespace opentrackio::opentrackiotypes
 
         if (!rationalJson.at("num").is_number_unsigned() || !rationalJson.at("denom").is_number_unsigned())
         {
-            errors.
-                    emplace_back(std::format("Key: {} numerator or denominator field isn't of type: unsigned integer",
-                                                fieldStr));
+            errors.emplace_back(std::format("Key: {} numerator or denominator field isn't of type: unsigned integer", fieldStr));
             return std::nullopt;
         }
 
@@ -78,7 +76,7 @@ namespace opentrackio::opentrackiotypes
     {
         const auto& rotJson = json[fieldStr];
 
-        Rotation rot{};
+        std::optional<Rotation> rot = Rotation{};
         if (!rotJson.contains("pan") || !rotJson.contains("tilt") || !rotJson.contains("roll"))
         {
             errors.emplace_back(std::format("Key: {} Rotation is missing required fields", fieldStr));
@@ -93,9 +91,9 @@ namespace opentrackio::opentrackiotypes
             return std::nullopt;
         }
 
-        OpenTrackIOHelpers::getFieldFromJson(rotJson["tilt"], rot.tilt);
-        OpenTrackIOHelpers::getFieldFromJson(rotJson["pan"], rot.pan);
-        OpenTrackIOHelpers::getFieldFromJson(rotJson["roll"], rot.roll);
+        OpenTrackIOHelpers::getFieldFromJson(rotJson["tilt"], rot->tilt);
+        OpenTrackIOHelpers::getFieldFromJson(rotJson["pan"], rot->pan);
+        OpenTrackIOHelpers::getFieldFromJson(rotJson["roll"], rot->roll);
 
         return rot;
     }

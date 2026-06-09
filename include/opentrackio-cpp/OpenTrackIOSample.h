@@ -37,12 +37,12 @@ namespace opentrackio
         OpenTrackIOSample() = default;
         bool initialise(const std::string_view jsonString);
         bool initialise(std::span<const uint8_t> cbor);
-        const std::vector<std::string>& getErrors() { return m_errorMessages; };
-        const std::vector<std::string>& getWarnings() { return m_warningMessages; };
+
         const std::string getJsonString();
-        
+        const std::vector<std::string>& getErrors() const { return m_errorMessages; };
+        const std::vector<std::string>& getWarnings() const { return m_warningMessages; };
+
     private:
-        std::string generateJson();
         bool initialise(const nlohmann::json& json);
         void parseCameraToJson(nlohmann::json& baseJson);
         void parseDurationToJson(nlohmann::json& baseJson);

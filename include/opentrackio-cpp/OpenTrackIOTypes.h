@@ -136,7 +136,7 @@ namespace opentrackio::opentrackiotypes
     };
 
     template<typename T>
-        requires std::is_arithmetic_v<T> && !std::is_same_v<T, bool>
+        requires (std::is_arithmetic_v<T> && !std::is_same_v<T, bool>)
     struct Dimensions
     {
         T width = 0;
