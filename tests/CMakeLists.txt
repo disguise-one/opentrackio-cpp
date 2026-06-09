@@ -9,8 +9,6 @@
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cmake_minimum_required(VERSION 3.25)
-project(opentrackio-cpp-tests VERSION 1.0.1 LANGUAGES CXX)
 Include(FetchContent)
 
 # Catch 2 test framework
@@ -22,27 +20,13 @@ FetchContent_Declare(
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build libraries as static" FORCE)
 FetchContent_MakeAvailable(Catch2)
 
-# OpenSSL - for Curl
+# Camdkit to provide test data/samples.
 FetchContent_Declare(
-    ssl_content
-    URL "https://github.com/janbar/openssl-cmake/archive/refs/tags/1.1.1w-20250419.tar.gz"
-    OVERRIDE_FIND_PACKAGE
+  testdata
+  GIT_REPOSITORY git@github.com:disguise-one/opentrackio-testdata.git
+  GIT_TAG        v1.0.1
 )
-FetchContent_MakeAvailable(ssl_content)
-
-# Curl - to get the latest examples from OpenTrackIO.org
-FetchContent_Declare(
-        curl
-        URL "https://github.com/curl/curl/archive/refs/tags/curl-8_7_1.tar.gz"
-        OVERRIDE_FIND_PACKAGE
-)
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build libraries as static" FORCE)
-set(CURL_USE_OPENSSL ON CACHE INTERNAL "Use OpenSSL backend" FORCE)
-set(BUILD_CURL_EXE OFF CACHE BOOL "Don't build curl executable" FORCE)
-set(BUILD_TESTING OFF CACHE BOOL "Don't build curl tests" FORCE)
-option(CMAKE_USE_SCHANNEL "Set to ON to use WINSSL for windows." ON)
-FetchContent_MakeAvailable(curl)
-find_package(CURL REQUIRED)
+FetchContent_MakeAvailable(testdata)
 
 # Json
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/../cmake")
@@ -69,30 +53,27 @@ target_include_directories(tests
         "${CMAKE_CURRENT_LIST_DIR}/../external"
 )
 
-# IDE
-target_sources(tests
-    PRIVATE
-        test.cpp
-        ../include/opentrackio-cpp/OpenTrackIOHelper.h
-        ../include/opentrackio-cpp/OpenTrackIOProperties.h
-        ../include/opentrackio-cpp/OpenTrackIOSample.h
-        ../include/opentrackio-cpp/OpenTrackIOTypes.h
-        ../src/OpenTrackIOProperties.cpp
-        ../src/OpenTrackIOSample.cpp
-)
+# Copies the testdata contents to the exe in the tree.
+add_custom_command(TARGET tests POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+                ${testdata_SOURCE_DIR}
+                $<TARGET_FILE_DIR:tests>/testdata
+        COMMENT "Copying test resources to target.")
+
 
 # Linkage
 target_link_libraries(tests
     PRIVATE
-        opentrackio-cpp
+        ${PROJECT_NAME}
         Catch2::Catch2WithMain
-        ssl
-        crypto
-        CURL::libcurl
         nlohmann_json_schema_validator
 )
 
-if (WIN32)
-    # For Windows, we need to link against ws2_32
-    target_link_libraries(tests PRIVATE ws2_32.lib)
+if(NOT BUILD_STATIC_LIBS)
+    message(STATUS "Adding post build shared library copy for tests.")
+    add_custom_command(TARGET tests POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+                $<TARGET_RUNTIME_DLLS:tests> $<TARGET_FILE_DIR:tests>
+        COMMAND_EXPAND_LISTS
+    )
 endif()

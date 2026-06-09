@@ -11,8 +11,10 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "opentrackio-cpp/OpenTrackIOSample.h"
 #include <format>
+#include <nlohmann/json.hpp>
+
+#include "opentrackio-cpp/OpenTrackIOSample.h"
 
 namespace opentrackio
 {
@@ -57,9 +59,6 @@ namespace opentrackio
 
     bool OpenTrackIOSample::initialise(const nlohmann::json &json)
     {
-        // Take a copy of the full JSON for referencing later if needed.
-        m_json = json;
-
         /**
          * Take a second copy of the original which will have all processed fields removed (this is to check for
          * leftover fields. */
@@ -134,17 +133,7 @@ namespace opentrackio
         }
     }
 
-    const nlohmann::json &OpenTrackIOSample::getJson()
-    {
-        if (!m_json.has_value())
-        {
-            generateJson();
-        }
-
-        return m_json.value();
-    }
-
-    void OpenTrackIOSample::generateJson()
+    const std::string OpenTrackIOSample::getJsonString()
     {
         namespace props = opentrackioproperties;
 
@@ -163,7 +152,7 @@ namespace opentrackio
         parseTrackerToJson(j);
         parseTransformsToJson(j);
 
-        m_json = j;
+        return j.dump();
     }
 
     void OpenTrackIOSample::parseCameraToJson(nlohmann::json& baseJson)

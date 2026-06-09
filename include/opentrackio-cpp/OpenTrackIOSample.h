@@ -14,7 +14,7 @@
 #pragma once
 #include <optional>
 #include <span>
-#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 #include "OpenTrackIOProperties.h"
 
 namespace opentrackio
@@ -35,15 +35,15 @@ namespace opentrackio
         std::optional<opentrackioproperties::Transforms> transforms = std::nullopt;
 
         OpenTrackIOSample() = default;
-        bool initialise(const nlohmann::json& json);
         bool initialise(const std::string_view jsonString);
         bool initialise(std::span<const uint8_t> cbor);
-        const std::vector<std::string>& getErrors() { return m_errorMessages; };
-        const std::vector<std::string>& getWarnings() { return m_warningMessages; };
-        const nlohmann::json& getJson();
-        
+
+        const std::string getJsonString();
+        const std::vector<std::string>& getErrors() const { return m_errorMessages; };
+        const std::vector<std::string>& getWarnings() const { return m_warningMessages; };
+
     private:
-        void generateJson();
+        bool initialise(const nlohmann::json& json);
         void parseCameraToJson(nlohmann::json& baseJson);
         void parseDurationToJson(nlohmann::json& baseJson);
         void parseGlobalStageToJson(nlohmann::json& baseJson);
@@ -60,7 +60,6 @@ namespace opentrackio
         [[nodiscard]] bool isEmpty() const;
         void warnForRemainingFields(const nlohmann::json& json);
         
-        std::optional<nlohmann::json> m_json = std::nullopt;
         std::vector<std::string> m_errorMessages{};
         std::vector<std::string> m_warningMessages{};
     };
