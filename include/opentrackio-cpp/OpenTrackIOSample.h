@@ -19,7 +19,7 @@
 
 namespace opentrackio
 {
-    struct OpenTrackIOSample
+    struct EXPORT OpenTrackIOSample
     {
         std::optional<opentrackioproperties::Camera> camera = std::nullopt;
         std::optional<opentrackioproperties::Duration> duration = std::nullopt;
