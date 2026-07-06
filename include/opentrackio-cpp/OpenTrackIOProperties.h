@@ -23,6 +23,16 @@
 #define OPEN_TRACK_IO_PROTOCOL_MINOR_VERSION 0
 #define OPEN_TRACK_IO_PROTOCOL_PATCH         1
 
+#ifdef _MSC_VER
+    #ifdef OPENTRACKIO_BUILD
+        #define EXPORT __declspec(dllexport)
+    #else
+        #define EXPORT __declspec(dllimport)
+    #endif
+#else // Support for GCC and Clang.
+    #define EXPORT __attribute__((visibility("default")))
+#endif
+
 namespace opentrackio::opentrackioproperties
 {
     /** Duration of the clip.
@@ -305,8 +315,8 @@ namespace opentrackio::opentrackioproperties
     struct EXPORT SourceNumber
     {
         /**
-	    * Number that identifies the index of the stream from a source from which data is being transported.
-	    * This is most important in the case where a source is producing multiple streams of samples. */
+        * Number that identifies the index of the stream from a source from which data is being transported.
+        * This is most important in the case where a source is producing multiple streams of samples. */
         uint32_t value;
 
         static std::optional<SourceNumber> parse(nlohmann::json& json, std::vector<std::string>& errors);
