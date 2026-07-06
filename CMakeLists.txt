@@ -51,7 +51,7 @@ endif()
 
 target_sources(${PROJECT_NAME} PRIVATE ${source_list})
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
-add_compile_definitions(OPEN_TRACK_IO=1)
+add_compile_definitions(OPENTRACKIO_BUILD)
 
 # Handle debug vs release builds and their separate libs
 
