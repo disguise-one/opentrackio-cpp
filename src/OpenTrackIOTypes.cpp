@@ -160,6 +160,7 @@ namespace opentrackio::opentrackiotypes
         return Timestamp(seconds.value(), nanoseconds.value());
     }
 
+    template<>
     std::optional<Dimensions<unsigned int> > Dimensions<unsigned int>::parse(nlohmann::json& json,
         std::string_view fieldStr,
         std::vector<std::string>& errors)
@@ -181,6 +182,7 @@ namespace opentrackio::opentrackiotypes
         return Dimensions<unsigned int>(width.value(), height.value());
     }
 
+    template<>
     std::optional<Dimensions<double> > Dimensions<double>::parse(nlohmann::json& json,
         std::string_view fieldStr,
         std::vector<std::string>& errors)
